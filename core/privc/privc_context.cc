@@ -16,6 +16,7 @@
 
 #include "core/privc/triplet_generator.h"
 #include "core/privc/privc_context.h"
+#include "core/privc/ot.h"
 namespace privc {
 
 void PrivCContext::set_triplet_generator(std::shared_ptr<TripletGenerator<int64_t, SCALING_N>>& tripletor) {
@@ -25,6 +26,14 @@ void PrivCContext::set_triplet_generator(std::shared_ptr<TripletGenerator<int64_
 std::shared_ptr<TripletGenerator<int64_t, SCALING_N>> PrivCContext::triplet_generator() {
   PADDLE_ENFORCE_NE(_tripletor, nullptr, "must set triplet generator first.");
   return _tripletor;
+}
+
+void PrivCContext::set_ot(std::shared_ptr<OT>& ot) {
+  _ot = ot;
+}
+
+std::shared_ptr<OT>& PrivCContext::ot() {
+  return _ot;
 }
 
 } // namespace privc

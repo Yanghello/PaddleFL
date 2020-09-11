@@ -54,5 +54,31 @@ TEST(MpcInstanceTest, InitInstance) {
   }
 }
 
+TEST(MpcInstanceTest, InitInstancePrivC) {
+  using paddle::platform::EnforceNotMet;
+
+  auto gloo_store = std::make_shared<gloo::rendezvous::HashStore>();
+  std::shared_ptr<std::thread> threads[2];
+  for (size_t idx = 0; idx < 2; ++idx) {
+    threads[idx] = std::make_shared<std::thread>([gloo_store, idx]() {
+      const std::string protocol_name("privc");
+      MpcConfig privc_config;
+      privc_config.set_int(Aby3Config::ROLE, idx);
+      auto mpc_instance = MpcInstance::init_instance_with_store(
+          protocol_name, privc_config, gloo_store);
+      ASSERT_NE(MpcInstance::mpc_instance(), nullptr);
+      EXPECT_EQ(MpcInstance::mpc_instance(), mpc_instance);
+      EXPECT_EQ(mpc_instance, MpcInstance::init_instance_with_store(
+                                  protocol_name, privc_config, gloo_store));
+      EXPECT_EQ(mpc_instance->mpc_protocol()->name(), "privc");
+    });
+  }
+  EXPECT_THROW(MpcInstance::mpc_instance(), EnforceNotMet);
+
+  for (auto thread : threads) {
+    thread->join();
+  }
+}
+
 } // mpc
 } // paddle

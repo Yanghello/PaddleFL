@@ -15,6 +15,7 @@
 #include <thread>
 
 #include "aby3_protocol.h"
+#include "privc_protocol.h"
 #include "mpc_config.h"
 #include "mpc_protocol_factory.h"
 #include "gtest/gtest.h"
@@ -81,6 +82,55 @@ TEST(MpcProtocolTest, ProtocolInit) {
       ASSERT_NE(proto->mpc_context(), nullptr);
       EXPECT_EQ(proto->mpc_context()->next_party(), (idx + 1) % 3);
       EXPECT_EQ(proto->mpc_context()->pre_party(), (idx + 2) % 3);
+
+      EXPECT_NE(proto->mpc_operators(), nullptr);
+    });
+  }
+
+  for (auto thread : threads) {
+    thread->join();
+  }
+}
+
+TEST(MpcProtocolTest, ProtocolInitPrivC) {
+  using paddle::platform::EnforceNotMet;
+
+  auto mpc = MpcProtocolFactory::build("privc");
+  ASSERT_NE(mpc, nullptr);
+
+  // not yet initialized
+  EXPECT_THROW(mpc->mpc_context(), EnforceNotMet);
+  EXPECT_THROW(mpc->mpc_operators(), EnforceNotMet);
+  EXPECT_THROW(mpc->network(), EnforceNotMet);
+
+  // try initialize
+  auto privc = std::dynamic_pointer_cast<PrivCProtocol>(mpc);
+  MpcConfig config;
+
+  // null store
+  EXPECT_THROW(privc->init_with_store(config, nullptr), EnforceNotMet);
+
+  auto gloo_store = std::make_shared<gloo::rendezvous::HashStore>();
+  std::shared_ptr<std::thread> threads[2];
+  for (size_t idx = 0; idx < 2; ++idx) {
+    threads[idx] = std::make_shared<std::thread>([gloo_store, idx]() {
+      auto proto = std::make_shared<PrivCProtocol>();
+      ASSERT_NE(proto, nullptr);
+      MpcConfig privc_config;
+      privc_config.set_int(PrivCConfig::ROLE, idx);
+      proto->init_with_store(privc_config, gloo_store);
+
+      ASSERT_NE(proto->network(), nullptr);
+      EXPECT_EQ(proto->network()->party_id(), idx);
+      EXPECT_EQ(proto->network()->party_num(), 2);
+
+      ASSERT_NE(proto->mpc_context(), nullptr);
+      EXPECT_EQ(proto->mpc_context()->next_party(), (idx + 1) % 2);
+      EXPECT_EQ(proto->mpc_context()->pre_party(), (idx - 1) % 2);
+      auto privc_context = std::dynamic_pointer_cast<PrivCContext>(
+                                                proto->mpc_context());
+      ASSERT_NE(privc_context->triplet_generator(), nullptr);
+      ASSERT_NE(privc_context->ot(), nullptr);
 
       EXPECT_NE(proto->mpc_operators(), nullptr);
     });

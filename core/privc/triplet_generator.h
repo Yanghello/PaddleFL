@@ -27,6 +27,7 @@
 #include "core/psi/ot_extension.h"
 #include "core/privc3/tensor_adapter.h"
 #include "core/privc/ot.h"
+#include "core/privc/privc_context.h"
 
 namespace privc {
 

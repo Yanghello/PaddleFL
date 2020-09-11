@@ -338,6 +338,8 @@ public:
         x_->inverse_square_root(y_);
     }
 
+    void argmax(const Tensor *op, Tensor *out) override {}
+
 private:
     template <typename T>
     std::tuple<

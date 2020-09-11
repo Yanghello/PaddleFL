@@ -3,6 +3,7 @@ set(PRIVC_SRCS
     "integer.cc"
     "bit.cc"
     "ot.cc"
+    "../paddlefl_mpc/mpc_protocol/context_holder.cc"
 )
 
 add_library(privc_o OBJECT ${PRIVC_SRCS})
@@ -10,7 +11,7 @@ add_dependencies(privc_o crypto privc3)
 
 add_library(privc SHARED $<TARGET_OBJECTS:privc_o>)
 
-target_link_libraries(privc psi)
+target_link_libraries(privc psi privc3)
 
 #set(CMAKE_BUILD_TYPE Debug)
 

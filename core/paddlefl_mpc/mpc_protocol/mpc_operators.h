@@ -26,6 +26,7 @@ using paddle::framework::Tensor;
 
 // TODO: decide scaling factor
 const size_t FIXED_POINTER_SCALING_FACTOR = 16;
+const size_t PRIVC_FIXED_POINTER_SCALING_FACTOR = 32;
 
 class MpcOperators {
 public:
@@ -83,6 +84,8 @@ public:
     virtual void max_pooling(const Tensor* in, Tensor* out, Tensor* pos_info) {}
 
     virtual void inverse_square_root(const Tensor* in, Tensor* out) = 0;
+
+    virtual void argmax(const Tensor *op, Tensor *out) = 0;
 };
 
 } // mpc

@@ -75,5 +75,8 @@ public:
   static const std::string NET_SERVER_ADDR_DEFAULT;
   static const int NET_SERVER_PORT_DEFAULT;
 };
+
+// privc config is the same with aby3
+using PrivCConfig = Aby3Config;
 } // mpc
 } // paddle

@@ -39,7 +39,7 @@ using CPUDeviceContext = paddle::platform::CPUDeviceContext;
 
 class PrivCOperatorsImpl : public MpcOperators {
 public:
-    void add(const Tensor *lhs, const Tensor *rhs, Tensor *out) override {
+    void add(const Tensor *lhs, const Tensor *rhs, Tensor *out, int axis = -1) override {
         PaddleTensor lhs_(device_ctx(), *lhs);
         PaddleTensor rhs_(device_ctx(), *rhs);
         PaddleTensor out_(device_ctx(), *out);
@@ -75,29 +75,12 @@ public:
         op_f.negative(&out_f);
     }
 
-    void sum(const Tensor *op, Tensor *out) override {
-        PaddleTensor op_(device_ctx(), *op);
-        PaddleTensor out_(device_ctx(), *out);
+    void sum(const Tensor *op, Tensor *out) override {}
 
-        PrivCFixedTensor op_f(&op_);
-        PrivCFixedTensor out_f(&out_);
+    void mul(const Tensor *lhs, const Tensor *rhs, Tensor *out) override {}
 
-        op_f.sum(&out_f);
-    }
-
-    void mul(const Tensor *lhs, const Tensor *rhs, Tensor *out) override {
-        PaddleTensor lhs_(device_ctx(), *lhs);
-        PaddleTensor rhs_(device_ctx(), *rhs);
-        PaddleTensor out_(device_ctx(), *out);
-
-        PrivCFixedTensor lhs_f(&lhs_);
-        PrivCFixedTensor rhs_f(&rhs_);
-        PrivCFixedTensor out_f(&out_);
-
-        lhs_f.mul(&rhs_f, &out_f);
-    }
-
-    void matmul(const Tensor *lhs, const Tensor *rhs, Tensor *out) override {
+    void matmul(const Tensor *lhs, const Tensor *rhs, Tensor *out,
+                int x_num_col_dims = 1, int y_num_col_dims = 1) override {
         PaddleTensor lhs_(device_ctx(), *lhs);
         PaddleTensor rhs_(device_ctx(), *rhs);
         PaddleTensor out_(device_ctx(), *out);

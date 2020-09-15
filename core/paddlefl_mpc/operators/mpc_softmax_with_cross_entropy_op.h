@@ -58,9 +58,15 @@ public:
         out_loss_t->mutable_data<T>(ctx.GetPlace());
         bool use_relu = ctx.Attr<bool>("use_relu");
         bool use_long_div = ctx.Attr<bool>("use_long_div");
+        bool is_test = ctx.Attr<bool>("is_test");
 
-        mpc::MpcInstance::mpc_instance()->mpc_protocol()->mpc_operators()->softmax(
-            in_x_t, out_softmax_t, use_relu, use_long_div);
+        auto proto = mpc::MpcInstance::mpc_instance()->mpc_protocol();
+        if (is_test && proto->name() == "privc") {
+            proto->mpc_operators()->argmax(in_x_t, out_softmax_t);
+        } else {
+            proto->mpc_operators()->softmax(
+                in_x_t, out_softmax_t, use_relu, use_long_div);
+        }
     }
 };
 
@@ -75,6 +81,11 @@ public:
         auto *dx = ctx.Output<Tensor>(framework::GradVarName("Logits"));
         const bool soft_label = ctx.Attr<bool>("soft_label");
         PADDLE_ENFORCE_EQ(soft_label, true, "soft_label can only be true.");
+        bool is_test = ctx.Attr<bool>("is_test");
+        PADDLE_ENFORCE_EQ(!ctx.Attr<bool>("is_test"), true,
+                platform::errors::InvalidArgument(
+                    "is_test attribute should be set to False in training phase. "
+                    "but received is_test == True in training phase."));
 
         const int rank = dx->dims().size();
         const int axis = CanonicalAxis(ctx.Attr<int>("axis"), rank);

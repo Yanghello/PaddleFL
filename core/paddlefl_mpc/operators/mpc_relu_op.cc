@@ -37,6 +37,10 @@ class MpcReluOpMaker : public framework::OpProtoAndCheckerMaker {
     AddInput("X", "The input tensor.");
     AddOutput("Out", "Output of relu_op");
     AddOutput("Derivative", "Derivative of relu_op");
+    AddAttr<bool>("is_test",
+                  "(bool, default false) Set to true for inference only, false "
+                  "for training. Some layers may run faster when this is true.")
+        .SetDefault(false);
     AddComment(R"DOC(
 Mpc Relu Operator.
 )DOC");

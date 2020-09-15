@@ -6,6 +6,7 @@ set(PROTO_SRCS
     "./mpc_instance.cc"
     "./mpc_protocol_factory.cc"
     "./privc_protocol.cc"
+    "./aby3_operators.cc"
 )
 add_library(mpc_protocol_o OBJECT ${PROTO_SRCS})
 add_dependencies(mpc_protocol_o fluid_framework gloo hiredis)

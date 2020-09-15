@@ -41,19 +41,7 @@ using PaddleTensor = aby3::PaddleTensor<int64_t>;
 class Aby3OperatorsImpl : public MpcOperators {
 public:
 
-    void add(const Tensor *lhs, const Tensor *rhs, Tensor *out) override {
-
-        auto lhs_tuple = from_tensor(lhs);
-        auto rhs_tuple = from_tensor(rhs);
-        auto out_tuple = from_tensor(out);
-
-        auto lhs_ = std::get<0>(lhs_tuple).get();
-        auto rhs_ = std::get<0>(rhs_tuple).get();
-        auto out_ = std::get<0>(out_tuple).get();
-
-        lhs_->add(rhs_, out_);
-
-    }
+    void add(const Tensor *lhs, const Tensor *rhs, Tensor *out, int axis = -1) override;
 
     // TODO: override
     void sub(const Tensor *lhs, const Tensor *rhs, Tensor *out) override {
@@ -104,18 +92,8 @@ public:
         lhs_->mul(rhs_, out_);
     }
 
-    void matmul(const Tensor *lhs, const Tensor *rhs, Tensor *out) override {
-
-        auto lhs_tuple = from_tensor(lhs);
-        auto rhs_tuple = from_tensor(rhs);
-        auto out_tuple = from_tensor(out);
-
-        auto lhs_ = std::get<0>(lhs_tuple).get();
-        auto rhs_ = std::get<0>(rhs_tuple).get();
-        auto out_ = std::get<0>(out_tuple).get();
-
-        lhs_->mat_mul(rhs_, out_);
-    }
+    void matmul(const Tensor *lhs, const Tensor *rhs, Tensor *out,
+                int x_num_col_dims = 1, int y_num_col_dims = 1) override;
 
     void scale(const Tensor *lhs, const double factor, Tensor *out) override {
         auto lhs_tuple = from_tensor(lhs);

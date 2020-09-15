@@ -183,6 +183,10 @@ public:
             .SetDefault(-1);
         AddAttr<bool>("use_relu", "").SetDefault(false);
         AddAttr<bool>("use_long_div", "").SetDefault(true);
+        AddAttr<bool>("is_test",
+                  "(bool, default false) Set to true for inference only, false "
+                  "for training. Some layers may run faster when this is true.")
+            .SetDefault(false);
         AddComment(R"DOC(
 Softmax With Cross Entropy Operator.
 Cross entropy loss with softmax is used as the output layer extensively. This

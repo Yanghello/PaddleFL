@@ -27,54 +27,10 @@ public:
         auto *x = ctx.Input<Tensor>("X");
         auto *y = ctx.Input<Tensor>("Y");
         auto *out = ctx.Output<Tensor>("Out");
-
         int x_num_col_dims = ctx.template Attr<int>("x_num_col_dims");
         int y_num_col_dims = ctx.template Attr<int>("y_num_col_dims");
-        auto x_dims = x->dims();
-        auto y_dims = y->dims();
-
-        int x_mat_width = 1;
-        int x_mat_height = 1;
-        int y_mat_width = 1;
-        int y_mat_height = 1;
-
-        for (size_t i = 1; i < x_dims.size(); i++) {
-            if (i <= x_num_col_dims) {
-                x_mat_width *= x_dims[i];
-            } else {
-                x_mat_height *= x_dims[i];
-            }
-        }
-        for (size_t i = 1; i < y_dims.size(); i++) {
-            if (i <= y_num_col_dims) {
-                y_mat_width *= y_dims[i];
-            } else {
-                y_mat_height *= y_dims[i];
-            }
-        }
- 
-        Tensor x_matrix;
-        Tensor y_matrix;
-        x_matrix.ShareDataWith(*x);
-        y_matrix.ShareDataWith(*y);
-
-        x_matrix.Resize({2, x_mat_width, x_mat_height});
-        y_matrix.Resize({2, y_mat_width, y_mat_height});
- 
-        out->mutable_data<T>(ctx.GetPlace());
-        
-        auto out_dim = out->dims();
-        if (out_dim.size() > 3) {
-            out->Resize({2, x_mat_width, y_mat_height});
-        }
-       
-        mpc::MpcInstance::mpc_instance()->mpc_protocol()->mpc_operators()->matmul(
-            &x_matrix, &y_matrix, out); 
-        
-        if (out_dim.size() > 3) {
-            out->Resize(out_dim);
-        }
-       
+        mpc::MpcInstance::mpc_instance()->mpc_protocol()
+                ->mpc_operators()->matmul(x, y, out, x_num_col_dims, y_num_col_dims);
     }
 };
 
